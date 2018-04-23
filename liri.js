@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+var fs = require('fs');
 var keys = require("./keys.js");
 var request = require("request");
 var action = process.argv[2];
@@ -9,21 +10,23 @@ var twitterClient = new Twitter(keys.twitter);
 var Spotify = require('node-spotify-api');
 var spotifyClient = new Spotify(keys.spotify);
 
+runApp();
 
-
-switch (action) {
-    case 'mytweets':
-        myTweets();
-        break;
-    case 'spotify-this-song':
-        mySpotify(myInput);
-        break;
-    case 'movie-this':
-        myMovie(myInput);
-        break;
-    case 'do-what-it-says':
-        random();
-        break;
+function runApp(){
+    switch (action) {
+        case 'mytweets':
+            myTweets();
+            break;
+        case 'spotify-this-song':
+            mySpotify(myInput);
+            break;
+        case 'movie-this':
+            myMovie(myInput);
+            break;
+        case 'do-what-it-says':
+            random();
+            break;
+    };
 };
 
 function myTweets() {
@@ -93,7 +96,7 @@ function myMovie(movie) {
             console.log(movie)
         } 
     
-    var queryUrl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy";
+    var queryUrl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy&tomatoes=true";
   
     
     request(queryUrl, function(error, response, body) {
@@ -105,15 +108,14 @@ function myMovie(movie) {
             console.log("Movie Title: " + jsonBody.Title);
             console.log("Release Year: " + jsonBody.Year);
             console.log("IMDB Rating: " + jsonBody.imdbRating);
-            console.log("Rotten Tomatoes Rating: " + jsonBody.Year);
+            //Rotten Tomatoes seems to not be working?  **Fix!
+            console.log("Rotten Tomatoes Rating: " + jsonBody.Ratings[1]);
             console.log("Country: " + jsonBody.Country);
             console.log("Language: " + jsonBody.Language);
             console.log("Plot: " + jsonBody.Plot);
             console.log("Actors: " +jsonBody.Actors);
         }
     })
-    
-
 };
 
 //   * Title of the movie.
@@ -124,3 +126,18 @@ function myMovie(movie) {
 // * Language of the movie.
 // * Plot of the movie.
 // * Actors in the movie.
+
+function random() {
+fs.readFile("random.txt", "utf8", function(error, data) {
+    if (error) {
+        console.log(error);
+    }
+    // console.log(data);
+    var dataArr = data.split(",");
+    console.log(dataArr);
+    action = dataArr[0] ;
+    myInput = dataArr[1];
+
+    runApp();
+});
+}
